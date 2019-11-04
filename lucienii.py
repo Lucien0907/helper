@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 import SimpleITK as sitk
+import matplotlib.pyplot as plt
 
 def files_indir(suffix='', path='.', abspath=True, deep=False, hidden=False, sort_level=-1):
     """find files of certain type in specified directory and all subdirectories
@@ -101,3 +102,16 @@ def resize_slices_xyc(slices, shape):
     for i in range(slices.shape[2]):
         resized[:,:,i] = pad_crop(slices[:,:,i], shape)
     return resized
+
+def nii_to_png(nii_file,dst_path='.'):
+    itkimg = sitk.ReadImage(nii_file)
+    img = sitk.GetArrayFromImage(itkimg)
+    folder = dst_path+'/'+nii_file.split('.')[0]
+    os.mkdir(folder)
+    for i in range(len(img)):
+        plt.imsave(folder+'/slice'+str(i)+'.png', img[i], cmap='gray')
+
+def niis_to_png(nii_path='.', dst_path='.'):
+    for x in os.listdir(nii_path):
+        if os.path.isfile(nii_path+x) and x.endswith('.nii'):
+            nii_to_png(x, dst_path)
